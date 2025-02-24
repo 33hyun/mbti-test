@@ -3,21 +3,27 @@ import { useNavigate } from "react-router-dom";
 import { login } from "../api/auth"; // 로그인 API 호출 함수 가져오기
 
 const Login = () => {
-  // 이메일과 비밀번호 상태를 관리
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  // 사용자가 입력한 로그인 정보를 저장하는 상태
+  const [id, setId] = useState(""); // 아이디
+  const [password, setPassword] = useState(""); // 비밀번호
   const navigate = useNavigate(); // 페이지 이동을 위한 `useNavigate` 사용
 
-  // 로그인 버튼 클릭 시 실행되는 함수
+  /**
+   * ✅ 로그인 요청 함수
+   * @param {Event} e - 폼 제출 이벤트
+   */
   const handleLogin = async (e) => {
-    e.preventDefault(); // 기본 동작(페이지 새로고침) 방지
+    e.preventDefault(); // 기본 동작(새로고침) 방지
     try {
-      const res = await login({ email, password }); // API 호출하여 로그인 요청
-      localStorage.setItem("token", res.data.token); // 받은 JWT 토큰을 로컬 스토리지에 저장
-      navigate("/profile"); // 로그인 성공 시 프로필 페이지로 이동
+      // 로그인 API 호출
+      const res = await login({ id, password });
+      // 로그인 성공 시 accessToken을 localStorage에 저장
+      localStorage.setItem("token", res.accessToken);
+      alert("로그인 성공! 프로필 페이지로 이동합니다."); // 성공 메시지 표시
+      navigate("/profile"); // 로그인 성공 후 프로필 페이지로 이동
     } catch (err) {
-      console.error(err.response?.data || err.message); // 콘솔에 오류 메시지 출력
-      alert(err.response?.data?.message || "로그인 실패!"); // 사용자에게 오류 메시지 표시
+      console.error("로그인 실패:", err.response?.data || err.message);
+      alert(err.response?.data?.message || "로그인에 실패했습니다."); // 사용자에게 오류 메시지 표시
     }
   };
 
@@ -25,12 +31,12 @@ const Login = () => {
     <div className="flex flex-col items-center mt-10">
       <h2 className="text-2xl mb-4">로그인</h2>
       <form onSubmit={handleLogin} className="flex flex-col gap-2">
-        {/* 이메일 입력 필드 */}
+        {/* 아이디 입력 필드 */}
         <input
-          type="email"
-          placeholder="이메일"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          type="text"
+          placeholder="아이디"
+          value={id}
+          onChange={(e) => setId(e.target.value)}
           required
           className="border p-2"
         />
